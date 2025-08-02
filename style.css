@@ -1,0 +1,1685 @@
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background-color: white;
+    color: black;
+    overflow-x: hidden; /* Prevent horizontal scroll from transform animations */
+}
+
+/* NEW: Rule to initially hide vertical scrollbar */
+body.no-scroll {
+    overflow-y: hidden;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    box-sizing: border-box;
+    z-index: 1000;
+    display: flex;
+    justify-content: space-between; /* Changed to space-between to allow centering of nav-links */
+    align-items: center;
+    background-color: transparent; /* Ensure header itself is transparent to allow nav background to show through */
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Add transition for header */
+}
+
+/* New class to hide the header */
+header.header-hidden {
+    transform: translateY(-100%); /* Slide up to hide */
+    opacity: 0; /* Make it invisible */
+    pointer-events: none; /* Disable interaction when hidden */
+}
+
+/* NEW: Initial hidden state for header */
+header.initial-hidden {
+    transform: translateY(-100%); /* Start completely above the viewport */
+    opacity: 0;
+}
+
+/* New spacer div to balance hamburger menu on desktop */
+.header-left-spacer {
+    width: 30px; /* Match hamburger menu width for balance */
+    height: 25px; /* Match hamburger menu height */
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Center nav links horizontally */
+    flex-grow: 1; /* Allow nav to take available space */
+    width: auto; /* Allow nav to size based on content and flex-grow */
+}
+
+/* Default styling for desktop navigation links */
+.nav-links {
+    list-style: none;
+    margin: 0;
+    padding: 10px 25px; /* Added padding for the background effect */
+    display: flex; /* Display as flex row for desktop */
+    gap: 20px;
+    align-items: center;
+    
+    /* NEW: Blur, rounded, and transparent background for desktop nav */
+    background-color: rgba(255, 255, 255, 0.15); /* Light transparent white */
+    backdrop-filter: blur(10px); /* Blur effect */
+    -webkit-backdrop-filter: blur(10px); /* Safari support for backdrop-filter */
+    border-radius: 30px; /* Rounded corners */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+
+    /* Existing transition, ensure it applies to mobile state changes */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Add transform to transition */
+}
+
+/* Hamburger menu styling - hidden by default on desktop */
+.hamburger-menu {
+    display: none; /* Hidden by default on desktop */
+    width: 30px; /* Ensure it has a consistent width when not displayed */
+    height: 25px; /* Ensure it has a consistent height when not displayed */
+    transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+nav .nav-links li a { /* Changed from nav li a to target the correct element */
+    text-decoration: none;
+    color: black;
+    font-weight: 400; /* Changed from 700 to 400 to remove bold effect */
+    font-size: 1.1em;
+    padding: 8px 15px; /* Keep current padding */
+    transition: color 0.3s ease;
+    font-family: 'Raleway', sans-serif; /* Added Raleway font */
+    position: relative; /* Added for ::after positioning */
+    overflow: hidden; /* Ensure nothing leaks out if animations go wild */
+}
+
+/* NEW: Base for the animated underline */
+nav .nav-links li a::after {
+    content: '';
+    position: absolute;
+    bottom: 5px; /* Position it 5px from the bottom of the link's padded area */
+    left: 50%; /* Start from the center */
+    transform: translateX(-50%); /* Center horizontally */
+    width: 0; /* Initially hidden */
+    height: 2px;
+    background-color: #FFA500; /* Orange color for hover */
+    border-radius: 1px; /* Subtle rounded ends */
+    transition: width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94), background-color 0.3s ease; /* Animate width and color */
+}
+
+/* NEW: Hover and active (touch) effect for all links' ::after */
+nav .nav-links li a:hover::after,
+nav .nav-links li a:active::after {
+    width: calc(100% - 30px); /* Expand to match text width, subtracting 15px padding from each side */
+}
+
+/* Style for the active "Home" link */
+.nav-links li a.nav-active {
+    color: #FF3700; /* Use the highlight color */
+    font-weight: 700; /* Make it bold */
+    border-bottom: none; /* REMOVED: Replaced by ::after pseudo-element */
+    padding-bottom: 8px; /* Adjusted padding to align with other links that don't have border-bottom */
+}
+
+/* NEW: Active state underline (always visible for active link) */
+.nav-links li a.nav-active::after {
+    width: calc(100% - 30px); /* Always visible, full width minus padding */
+    background-color: #FF3700; /* Darker orange for active state */
+    transition: none; /* No transition on initial load for active underline */
+    transform: translateX(-50%); /* Ensure it's centered */
+    left: 50%; /* Ensure it's centered */
+    bottom: 5px; /* Consistency with other link underlines */
+    height: 2px; /* Consistency */
+    border-radius: 1px; /* Consistency */
+}
+
+/* Ensure hover doesn't override the active state's color */
+.nav-links li a.nav-active:hover {
+    color: #CC2C00; /* Slightly darker orange on hover for active link */
+    /* border-color handled by ::after now */
+}
+
+/* NEW: Apply active (touch) state for nav-active text */
+.nav-links li a.nav-active:active {
+    color: #CC2C00;
+}
+
+nav li a:not(.nav-active):hover { /* Apply hover only to non-active links */
+    color: #FF6A00; /* Orange highlight on hover for regular links */
+}
+
+/* NEW: Apply hover effect to :active state for touch feedback */
+nav li a:not(.nav-active):active {
+    color: #FFA500; /* Same as hover for consistent feedback on touch */
+}
+
+.highlight-button {
+    background-color: #FF3700; /* Orange color */
+    color: white !important;
+    border-radius: 20px;
+    padding: 8px 20px;
+    transition: background-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    white-space: nowrap; /* Prevent text from wrapping */
+}
+
+.highlight-button:hover {
+    background-color: #CC2C00; /* Slightly darker orange on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+.highlight-button:active {
+    background-color: #CC2C00;
+    transform: translateY(-1px); /* Slightly less lift for active */
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3); /* Slightly less shadow */
+}
+
+.hero-work-button {
+    margin-left: 5%; /* Align with the heading */
+    margin-top: 20px; /* Space below heading */
+    font-size: 1.2em; /* Make button text a bit larger */
+    padding: 12px 30px; /* Bigger padding */
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(20px); /* Start slightly below */
+    transition: opacity 0.8s ease-out 0.5s, transform 0.8s ease-out 0.5s, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease; /* Animate with a delay, include new transitions */
+    display: inline-block; /* Ensure padding and transforms apply correctly */
+    text-decoration: none; /* Ensure no underline */
+
+    /* New styles for fill-up effect */
+    background-color: transparent !important; /* Start with transparent background, override .highlight-button */
+    border: 2px solid #FF3700; /* Add a border to define the button's shape */
+    color: #FF3700 !important; /* Initial text color to match the border */
+    position: relative; /* Needed for pseudo-element positioning */
+    overflow: hidden; /* Hide the sliding pseudo-element */
+    z-index: 0; /* Ensure it's correctly layered */
+}
+
+.hero-section .hero-work-button.visible { /* Add .visible class to trigger animation */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Specific hover effect for hero-work-button (fill-up effect) */
+.hero-work-button:hover {
+    background-color: #FF3700 !important; /* Fill with orange on hover */
+    color: white !important; /* Text turns white on hover */
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Add a subtle shadow */
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+.hero-work-button:active {
+    background-color: #FF3700 !important;
+    color: white !important;
+    transform: translateY(-1px); /* Slightly less lift on press */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hero-section {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    justify-content: center; /* Center items vertically */
+    align-items: flex-start; /* Align content to the left */
+    min-height: 100vh; /* Full viewport height */
+    text-align: left; /* Align text to the left */
+    padding: 20px;
+    background: linear-gradient(0deg,rgba(255, 255, 255, 1) 2%, rgba(220, 247, 247, 1) 22%, rgba(255, 156, 227, 1) 64%, rgba(255, 219, 179, 1) 100%);
+    box-sizing: border-box;
+    position: relative; /* Added for absolute positioning of the arrow */
+}
+
+#animated-heading {
+    font-size: 80px; /* Bigger font size */
+    font-weight: 500; /* Outfit Medium */
+    font-family: 'Outfit', sans-serif; /* Use Outfit font */
+    
+    color: black;
+    line-height: 1.2;
+    max-width: 1400px; /* Limit width for better readability */
+    margin-left: 5%; /* Add some margin from the left edge */
+    margin-bottom: 30px; /* Space between heading and new button */
+}
+
+/* NEW: Style for the "Work With Me" button in the hero section */
+.hero-work-button {
+    margin-left: 5%; /* Align with the heading */
+    margin-top: 20px; /* Space below heading */
+    font-size: 1.2em; /* Make button text a bit larger */
+    padding: 12px 30px; /* Bigger padding */
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(20px); /* Start slightly below */
+    transition: opacity 0.8s ease-out 0.5s, transform 0.8s ease-out 0.5s; /* Animate with a delay */
+    display: inline-block; /* Ensure padding and transforms apply correctly */
+    text-decoration: none; /* Ensure no underline */
+}
+
+.hero-section .hero-work-button.visible { /* Add .visible class to trigger animation */
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.ephesis-font {
+    font-family: 'Ephesis', cursive !important; /* Apply Ephesis font */
+}
+
+.lugrasimo-font {
+    font-family: 'Lugrasimo', cursive !important; /* Apply Lugrasimo font */
+}
+
+/* NEW: Playfair Display font for specific words */
+.playfair-display-font {
+    font-family: 'Playfair Display', serif !important;
+    font-weight: 700; /* Make it bold for emphasis */
+}
+
+#animated-heading span {
+    display: inline-block; /* Allows transform and opacity on words */
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Initial animation transition */
+}
+
+#animated-heading span.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* New style for faster transition specifically for magnetic hover effect */
+#animated-heading span.magnetic-hover {
+    transition: transform 0.1s ease-out; /* Faster for hover movement */
+}
+
+.scroll-arrow {
+    position: absolute;
+    bottom: 50px; /* Distance from the bottom of the hero section */
+    left: 50%;
+    transform: translateX(-50%); /* Center the arrow horizontally */
+    color: black; /* Arrow color */
+    cursor: pointer;
+    animation: bounce 2s infinite; /* Apply bounce animation */
+    z-index: 900; /* Ensure it's above other content but below header */
+}
+
+.scroll-arrow svg {
+    display: block; /* Ensures centering works well with flex/block */
+    width: 40px; /* Set a default size for the SVG */
+    height: 40px;
+    color: black; /* Apply color to the SVG stroke */
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0) translateX(-50%); /* Re-apply centering transform */
+    }
+    40% {
+        transform: translateY(-15px) translateX(-50%); /* Move up */
+    }
+    60% {
+        transform: translateY(-7px) translateX(-50%); /* Move up less */
+    }
+}
+
+/* Collaborations Section */
+.collaborations-section {
+    padding: 80px 5%; /* Add padding to the section */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 80vh; /* Give it some height */
+    box-sizing: border-box;
+    background-color: white; /* Ensure background is white */
+    position: relative; /* ADDED: For absolute positioning of the scrolling headline */
+    overflow: hidden; /* ADDED: To prevent horizontal scrollbars from the moving text */
+}
+
+/* NEW: Styling for the scrolling headline container */
+.scrolling-headline-container {
+    position: absolute;
+    top: 50px; /* Adjust vertical position as needed from the top of the section */
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    pointer-events: none; /* Allows interaction with elements underneath */
+    z-index: 1; /* Ensures it's above other static section elements if needed */
+    height: auto; /* Allow height to adjust to text content */
+}
+
+/* NEW: Styling for the actual scrolling text */
+.scrolling-headline-text {
+    display: inline-block; /* Essential for nowrap and transform */
+    white-space: nowrap; /* Keep all text on one line */
+    font-family: 'Outfit', sans-serif;
+    font-size: 5em; /* Large font size, adjust with media queries */
+    font-weight: 700;
+    color: black;
+    opacity: 1; /* Make it 100% visible */
+    will-change: transform; /* Performance optimization for animations */
+    text-transform: uppercase; /* Makes it more headline-like */
+    letter-spacing: 5px; /* Add some spacing for readability */
+    line-height: 1; /* Reduce extra space around text */
+}
+
+.collaborations-content {
+    display: flex;
+    flex-direction: column; /* Stack heading, logo, and description vertically */
+    align-items: center;
+    max-width: 1200px; /* Max width for content */
+    width: 100%;
+    gap: 30px; /* Space between heading, logo, and description */
+}
+
+.collab-image {
+    flex: 1; /* Take up available space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px; /* Add some padding around the image */
+    opacity: 0; /* Initial state for animation */
+    transition: opacity 1s ease-out, transform 1s ease-out; /* Animation transition */
+}
+
+.collab-image img {
+    max-width: 100%; /* Ensure image fits container */
+    height: auto;
+    display: block; /* Remove extra space below image */
+    width: 400px; /* Set a specific width for the logo */
+    min-width: 300px; /* Minimum width for smaller screens */
+}
+
+.collab-text {
+    /* Center text in new vertical layout */
+    text-align: center;
+    opacity: 0; /* Initial state for animation */
+    transition: opacity 1s ease-out, transform 1s ease-out; /* Animation transition */
+}
+
+/* Responsive adjustments for Scrolling Headline */
+@media (max-width: 1200px) {
+    .scrolling-headline-text {
+        font-size: 4em;
+    }
+}
+@media (max-width: 992px) {
+    .scrolling-headline-text {
+        font-size: 3.5em; /* Increased for tablets */
+    }
+}
+@media (max-width: 768px) {
+    .scrolling-headline-container {
+        top: 20px; /* Adjust top position for smaller screens */
+    }
+    .scrolling-headline-text {
+        font-size: 2.5em; /* Increased for phablets */
+        letter-spacing: 3px;
+    }
+}
+@media (max-width: 576px) {
+    .scrolling-headline-text {
+        font-size: 2em; /* Increased for mobile phones */
+        letter-spacing: 2px;
+    }
+}
+
+.collaborations-section h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3.5em; /* Large font size for title */
+    font-weight: 700;
+    margin-bottom: 20px;
+    /* Gradient text */
+    /* -webkit-background-clip: text; */
+    /* background-clip: text; */
+    color: black; /* Changed to black */
+    /* display: inline-block; */
+    line-height: 1.2;
+}
+
+.collaborations-section p {
+    font-family: 'Raleway', sans-serif; /* Changed to Raleway font */
+    font-size: 2em;
+    line-height: 1.6;
+    color: black;
+}
+
+.highlight-text {
+    color: #FF3700; /* Use the red highlight color */
+    font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+    #animated-heading {
+        font-size: 4.5em; /* Slightly smaller for larger tablets/laptops */
+    }
+
+    .collaborations-section h2 {
+        font-size: 3em;
+      text-align: center;/* Slightly smaller for larger tablets/laptops */
+    }
+    .collaborations-section p {
+        font-size: 1.4em;
+    }
+    .collab-image img {
+        width: 280px;
+    }
+}
+
+@media (max-width: 992px) {
+    #animated-heading {
+        font-size: 3.5em; /* Smaller for tablets */
+        margin-left: 3%;
+    }
+
+    nav ul {
+        gap: 15px;
+    }
+
+    nav li a {
+        font-size: 1em;
+        padding: 6px 12px;
+    }
+
+    .highlight-button {
+        padding: 6px 15px;
+    }
+
+    .collaborations-section h2 {
+        font-size: 2.5em;
+    }
+    .collaborations-section p {
+        font-size: 1.2em; /* Adjusted for better readability on tablets/phablets */
+    }
+    .collab-image img {
+        width: 250px; /* Smaller image on mobile */
+        min-width: unset;
+    }
+}
+
+/* Initial position for desktop and larger tablets */
+@media (min-width: 769px) {
+    .collab-image {
+        transform: translateY(-20px); /* Start slightly above for vertical layout */
+    }
+    .collab-text {
+        transform: translateY(20px); /* Start slightly below for vertical layout */
+    }
+}
+
+@media (max-width: 768px) {
+    header {
+        /* Already flex, justify-content: flex-end is enough */
+        /* Removed old top/right/width/height adjustments from here */
+        justify-content: flex-end; /* Ensure hamburger stays right */
+    }
+
+    .header-left-spacer {
+        display: none; /* Hide spacer on mobile */
+    }
+    
+    nav {
+        width: auto; /* Allow nav to size to content */
+    }
+
+    /* Show hamburger menu on mobile */
+    .hamburger-menu {
+        display: flex; /* Show hamburger */
+        flex-direction: column;
+        justify-content: space-around;
+        width: 30px;
+        height: 25px;
+        cursor: pointer;
+        z-index: 1001; /* Ensure it's above the overlay menu */
+        position: relative; /* For bar transitions */
+    }
+
+    .hamburger-menu .bar {
+        width: 100%;
+        height: 3px;
+        background-color: black;
+        border-radius: 5px;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Mobile navigation menu (hidden by default) */
+    .nav-links {
+        display: flex; /* Always display flex on mobile, but control visibility/position */
+        position: fixed; /* Overlay the content */
+        
+        /* Initial state: positioned off-screen to the bottom-right, scaled down, and rotated */
+        bottom: -50px; /* Start slightly below the viewport */
+        right: -50px; /* Start slightly to the right of the viewport */
+        transform: scale(0.1) rotateZ(45deg); /* Start small and rotated */
+        transform-origin: bottom right; /* Anchor the transformation to the bottom-right corner */
+        
+        width: 90%; /* Make it a contained block */
+        max-width: 400px; /* Max width for larger tablets */
+        height: auto; /* Adjust height to content */
+        min-height: 50vh; /* Minimum height to look substantial */
+        padding: 30px; /* More padding for modal style */
+
+        background-color: rgba(255, 255, 255, 0.7); /* More opaque for mobile, but still transparent */
+        backdrop-filter: blur(15px); /* Stronger blur for floating menu */
+        -webkit-backdrop-filter: blur(15px);
+        border-radius: 20px; /* Rounded corners for the modal */
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3); /* Stronger shadow for floating effect */
+
+        flex-direction: column; /* Stack items vertically */
+        justify-content: center; /* Center items vertically */
+        align-items: center;
+        gap: 30px; /* More space between links */
+        /* Updated transition for the "rising from a side" animation */
+        transition: opacity 0.8s ease-out, 
+                    transform 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), /* Bouncy bezier curve for rising effect */
+                    bottom 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                    right 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55), 
+                    visibility 0.8s ease-out; 
+        z-index: 999; /* Below hamburger, above content */
+        opacity: 0; /* Start invisible */
+        visibility: hidden; /* Hide from screen readers when closed */
+    }
+
+    /* When menu is active (open) */
+    .nav-links.active {
+        /* Final state: centered, full size, no rotation */
+        bottom: 50%; /* Move to 50% from bottom of viewport */
+        right: 50%; /* Move to 50% from right of viewport */
+        transform: translate(50%, 50%) scale(1) rotateZ(0deg); /* Translate back to center relative to bottom/right anchor */
+        opacity: 1; /* Fade in */
+        visibility: visible; /* Make visible to screen readers */
+    }
+
+    /* NEW: Hide ::after underline effect on mobile */
+    nav .nav-links li a::after {
+        content: none;
+    }
+
+    /* Mobile navigation link base style (after ::after is hidden) */
+    nav .nav-links li a {
+        padding: 8px 15px; /* Ensure padding is kept */
+        /* Reset any desktop-specific positioning if needed */
+        position: static; /* No relative positioning needed if no ::after */
+        overflow: visible; /* No overflow hidden needed */
+    }
+
+    /* Mobile active state, bring back the border-bottom */
+    .nav-links li a.nav-active {
+        border-bottom: 2px solid #FF3700;
+        padding-bottom: 5px; /* Restore padding for the border */
+    }
+
+    /* Style for menu items when active in mobile */
+    .nav-links.active li {
+        animation: menuItemSlideIn 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        opacity: 0;
+        transform: translateX(30px);
+    }
+
+    .nav-links.active li:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .nav-links.active li:nth-child(2) {
+        animation-delay: 0.2s;
+    }
+
+    .nav-links.active li a {
+        font-size: 1.8em; /* Make links bigger */
+        transition: color 0.3s ease, transform 0.3s ease;
+    }
+
+    .nav-links.active li a:hover {
+        transform: translateY(-2px);
+    }
+
+    .nav-links.active .highlight-button {
+        padding: 12px 30px; /* Make button bigger */
+        font-size: 1.5em;
+        transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    @keyframes menuItemSlideIn {
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+
+    /* Hamburger animation when open */
+    .hamburger-menu.open {
+        transform: rotate(90deg);
+    }
+
+    .hamburger-menu .bar {
+        width: 100%;
+        height: 3px;
+        background-color: black;
+        border-radius: 5px;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    .hamburger-menu.open .bar:nth-child(1) {
+        transform: translateY(11px) rotate(45deg);
+    }
+
+    .hamburger-menu.open .bar:nth-child(2) {
+        opacity: 0;
+        transform: scale(0);
+    }
+
+    .hamburger-menu.open .bar:nth-child(3) {
+        transform: translateY(-11px) rotate(-45deg);
+    }
+
+    #animated-heading {
+        font-size: 3.5em; /* Increased font size for phablets/small tablets */
+        margin-left: 0; /* Remove left margin on smaller screens */
+        text-align: left; /* Align text to the left on smaller screens */
+        max-width: 90%; /* Adjust max-width */
+        margin: 0 auto 30px auto; /* Center the heading block, add bottom margin */
+    }
+
+    .scroll-arrow {
+        bottom: 50px; /* Adjust for smaller screens: increased to move arrow higher */
+    }
+
+    .scroll-arrow svg {
+        width: 35px; /* Adjust SVG size for smaller screens */
+        height: 35px;
+    }
+
+    .collaborations-content {
+        flex-direction: column; /* Stack image and text vertically */
+        text-align: center; /* Center text when stacked */
+        gap: 20px; /* Reduce gap */
+    }
+
+    .collab-image {
+        margin-bottom: 0; /* Adjust margin when stacked */
+        padding: 10px;
+        transform: translateY(-50px); /* Start from slightly above */
+    }
+
+    .collab-image img {
+        width: 200px; /* Smaller image on mobile */
+        min-width: 150px;
+    }
+
+    .collaborations-section h2 {
+        font-size: 2em;
+        margin-top: 0; /* Adjust margin when stacked */
+    }
+
+    .collaborations-section p {
+        font-size: 1.2em; /* Adjusted for better readability on tablets/phablets */
+    }
+
+    .hero-work-button {
+        margin-left: 0; /* Center button on small screens */
+        align-self: center; /* Center horizontally in flex column */
+        font-size: 1em;
+        padding: 10px 25px;
+    }
+}
+
+@media (max-width: 576px) {
+    header {
+        top: 10px;
+        padding: 10px 20px; /* Adjust padding for smaller header */
+    }
+
+    nav li a {
+        font-size: 0.9em;
+        padding: 4px 8px;
+    }
+
+    .highlight-button {
+        font-size: 0.9em;
+        padding: 4px 10px;
+    }
+
+    .hero-section {
+        padding: 10px;
+    }
+
+    #animated-heading {
+        font-size: 2.5em; /* Increased font size for mobile phones */
+        line-height: 1.3;
+        text-align: left; /* Align text to the left on mobile screens */
+        margin: 0 auto 25px auto; /* Adjust margin for mobile */
+    }
+
+    .scroll-arrow {
+        bottom: 40px; /* Even smaller for mobile: increased to move arrow higher */
+    }
+
+    .scroll-arrow svg {
+        width: 30px; /* Adjust SVG size for mobile */
+        height: 30px;
+    }
+
+    .collaborations-section {
+        padding: 50px 3%;
+    }
+    .collab-image img {
+        width: 150px;
+        min-width: unset;
+    }
+    .collaborations-section h2 {
+        font-size: 1.6em;
+    }
+    .collaborations-section p {
+        font-size: 1em; /* Adjusted for better readability on mobile phones */
+    }
+
+    .hero-work-button {
+        font-size: 0.9em;
+        padding: 8px 20px;
+    }
+}
+
+/* Animation target state */
+.collab-image.animated-in,
+.collab-text.animated-in {
+    opacity: 1;
+    transform: translate(0, 0); /* Move to final position */
+}
+
+/* About Me Section */
+.about-me-section {
+    padding: 80px 5%;
+    background-color: white;
+    text-align: center;
+    min-height: 80vh; /* Give it some height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.about-me-content {
+    max-width: 900px; /* Max width for text content */
+    width: 100%;
+    /* Removed initial opacity and transform, handled by individual lines */
+    /* Removed transition, handled by individual lines */
+}
+
+.about-me-section h2 {
+    font-family: 'Cormorant Garamond', sans-serif;
+    font-size: 4em;
+    font-weight: 700;
+    margin-bottom: 40px; /* Space below heading and before lines */
+    /* -webkit-background-clip: text; */
+    /* background-clip: text; */
+    color: black; /* Changed to black */
+    /* display: inline-block; */
+    line-height: 1.2;
+}
+
+.about-me-text-line {
+    display: block; /* Make each span act like a paragraph line */
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.5em;
+    line-height: 1.6;
+    color: black;
+    margin-bottom: 20px; /* Space between lines */
+    opacity: 0; /* Initial state for animation */
+    transition: opacity 0.8s ease-out, transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Animation transition */
+}
+
+.about-me-text-line:last-child {
+    margin-bottom: 0; /* No margin after the last line */
+}
+
+/* Initial positions for alternating animation */
+.about-me-text-line.from-left {
+    transform: translateX(-50px);
+}
+
+.about-me-text-line.from-right {
+    transform: translateX(50px);
+}
+
+/* Target state for animated lines */
+.about-me-text-line.animated-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Responsive adjustments for About Me Section */
+@media (max-width: 1200px) {
+    .about-me-section h2 {
+        font-size: 3em;
+    }
+    .about-me-text-line {
+        font-size: 1.4em;
+    }
+}
+
+@media (max-width: 992px) {
+    .about-me-section h2 {
+        font-size: 2.5em;
+    }
+    .about-me-text-line {
+        font-size: 1.2em;
+    }
+}
+
+@media (max-width: 768px) {
+    .about-me-section h2 {
+        font-size: 2em;
+    }
+    .about-me-text-line {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 576px) {
+    .about-me-section h2 {
+        font-size: 1.8em;
+    }
+    .about-me-text-line {
+        font-size: 1em;
+    }
+}
+
+/* Animation target state for About Me section */
+.about-me-content.animated-in {
+    opacity: 1;
+    transform: translateY(0); /* Move to final position */
+}
+
+/* Recent Works Section */
+.recent-works-section {
+    padding: 80px 5%;
+    background-color: white; /* Or any background color */
+    text-align: center;
+    min-height: 50vh; /* Example height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.recent-works-content {
+    max-width: 1200px;
+    width: 100%;
+}
+
+.recent-works-section h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3.5em;
+    font-weight: 700;
+    margin-bottom: 40px;
+    background-image: linear-gradient(45deg, #FF3700, #FFA500); /* Red to Orange gradient */
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+    line-height: 1.2;
+}
+
+.works-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Responsive grid columns */
+    gap: 30px; /* Space between grid items */
+    margin-top: 40px;
+    justify-items: center; /* Center items in the grid cells */
+}
+
+.works-grid img {
+    width: 100%; /* Make images fill their grid cell */
+    max-width: 400px; /* Max width for individual images */
+    height: auto;
+    border-radius: 10px; /* Rounded corners for images */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Soft shadow */
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.6s ease-out, transform 0.6s ease-out; /* Smooth hover effect + initial animation */
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(20px); /* Start slightly below */
+}
+
+.works-grid img:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+.works-grid img:active {
+    transform: translateY(-2px); /* Slightly less lift on press */
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); /* Slightly less shadow on press */
+}
+
+/* Animation target state for recent works images */
+.works-grid img.animated-in {
+    opacity: 1;
+    transform: translateY(0); /* Move to final position */
+}
+
+/* Education Section */
+.education-section {
+    padding: 80px 5%;
+    background-color: white; /* Or any background color */
+    text-align: center;
+    min-height: 60vh; /* Example height */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.education-content {
+    max-width: 1200px;
+    width: 100%;
+}
+
+.education-section h2 {
+    font-family: 'Cormorant Garamond', sans-serif;
+    font-size: 4em;
+    font-weight: 700;
+    margin-bottom: 40px;
+    /* -webkit-background-clip: text; */
+    /* background-clip: text; */
+    color: black; /* Changed to black */
+    /* display: inline-block; */
+    line-height: 1.2;
+}
+
+.education-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+    margin-top: 40px;
+    justify-items: center;
+}
+
+.education-item {
+    background-color: transparent; /* Changed from #f9f9f9 to transparent */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 1s ease-out, transform 1s ease-out;
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(40px); /* Start slightly further below */
+    border: 2px solid #FF3700; /* Added orange border */
+}
+
+.education-item:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+.education-item:active {
+    transform: translateY(-2px); /* Slightly less lift on press */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12); /* Slightly less shadow on press */
+}
+
+.education-item h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8em;
+    color: #FF3700; /* Highlight color for degree */
+    margin-bottom: 10px;
+    line-height: 1.3;
+}
+
+.education-item .institution {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.2em;
+    color: #333;
+    margin-bottom: 5px;
+    font-weight: 700;
+}
+
+.education-item .years {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1em;
+    color: #666;
+}
+
+.education-item h3 span,
+.education-item .institution span,
+.education-item .years span {
+    display: inline-block; /* Essential for transform and opacity on individual characters */
+    opacity: 0; /* Initial hidden state */
+    transform: translateY(20px); /* Start floating from below */
+    transition: opacity 0.4s ease-out, transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Smooth animation */
+}
+
+.education-item h3 span.animated-in,
+.education-item .institution span.animated-in,
+.education-item .years span.animated-in {
+    opacity: 1;
+    transform: translateY(0); /* Settle into place */
+}
+
+/* Animation target state for education items */
+.education-item.animated-in {
+    opacity: 1;
+    transform: translateY(0); /* Move to final position */
+}
+
+/* Responsive adjustments for Education Section */
+@media (max-width: 992px) {
+    .education-section h2 {
+        font-size: 3em;
+    }
+    .education-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+    }
+    .education-item h3 {
+        font-size: 1.6em;
+    }
+    .education-item .institution {
+        font-size: 1.1em;
+    }
+}
+
+@media (max-width: 768px) {
+    .education-section h2 {
+        font-size: 2.5em;
+    }
+    .education-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    .education-item {
+        padding: 25px;
+    }
+    .education-item h3 {
+        font-size: 1.4em;
+    }
+    .education-item .institution {
+        font-size: 1em;
+    }
+    .education-item .years {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 576px) {
+    .education-section h2 {
+        font-size: 2em;
+    }
+    .education-grid {
+        grid-template-columns: 1fr; /* Stack items on very small screens */
+        gap: 15px;
+    }
+    .education-item {
+        max-width: 90%; /* Limit width for stacked items */
+        margin: 0 auto; /* Center stacked items */
+        padding: 20px;
+    }
+    .education-item h3 {
+        font-size: 1.2em;
+    }
+    .education-item .institution {
+        font-size: 0.9em;
+    }
+    .education-item .years {
+        font-size: 0.8em;
+    }
+}
+
+/* Skills Section */
+.skills-section {
+    padding: 80px 5%;
+    background-color: white;
+    text-align: center;
+    min-height: 60vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+}
+
+.skills-content {
+    max-width: 1200px; /* Changed from 900px to 1200px */
+    width: 100%;
+}
+
+.skills-section h2 {
+    font-family: 'Cormorant Garamond', sans-serif;
+    font-size: 4em;
+    font-weight: 700;
+    margin-bottom: 40px;
+    /* -webkit-background-clip: text; */
+    /* background-clip: text; */
+    color: black; /* Changed to black */
+    /* display: inline-block; */
+    line-height: 1.2;
+}
+
+.skills-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* Stack skills vertically */
+    gap: 30px; /* Space between skill items */
+    margin-top: 40px;
+}
+
+.skill-item {
+    background-color: transparent;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+    text-align: left;
+    border: 2px solid #FF3700; /* Orange border */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align name and bar to start */
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(20px); /* Start slightly below */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out; /* Animation for item */
+}
+
+.skill-item:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+.skill-item:active {
+    transform: translateY(-2px); /* Slightly less lift on press */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12); /* Slightly less shadow on press */
+}
+
+.skill-item.animated-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.skill-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8em;
+    color: black;
+    margin-bottom: 15px;
+    font-weight: 400;
+    width: 100%; /* Ensure it takes full width above bar */
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 15px; /* Height of the progress bar track */
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    overflow: hidden; /* Ensure fill stays within bounds */
+    margin-bottom: 10px;
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar-fill {
+    height: 100%;
+    width: 0%; /* Initial width for animation */
+    background-image: linear-gradient(45deg, #FF3700, #FFA500); /* Orange gradient fill */
+    border-radius: 8px;
+    transition: width 1.5s ease-out; /* Animation for width change */
+}
+
+.progress-text {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.1em;
+    color: #333;
+    font-weight: 700;
+}
+
+/* Responsive adjustments for Skills Section */
+@media (max-width: 992px) {
+    .skills-section h2 {
+        font-size: 3em;
+    }
+    .skill-item {
+        padding: 20px;
+    }
+    .skill-name {
+        font-size: 1.6em;
+    }
+    .progress-bar-container {
+        height: 12px;
+    }
+    .progress-text {
+        font-size: 1em;
+    }
+}
+
+@media (max-width: 768px) {
+    .skills-section h2 {
+        font-size: 2.5em;
+    }
+    .skills-grid {
+        gap: 25px;
+    }
+    .skill-item {
+        padding: 18px;
+    }
+    .skill-name {
+        font-size: 1.4em;
+        margin-bottom: 10px;
+    }
+    .progress-bar-container {
+        height: 10px;
+    }
+    .progress-text {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 576px) {
+    .skills-section h2 {
+        font-size: 2em;
+    }
+    .skills-grid {
+        gap: 20px;
+    }
+    .skill-item {
+        margin: 0 auto;
+        padding: 15px;
+    }
+    .skill-name {
+        font-size: 1.2em;
+    }
+    .progress-bar-container {
+        height: 8px;
+    }
+    .progress-text {
+        font-size: 0.8em;
+    }
+}
+
+/* Contact Section */
+.contact-section {
+    padding: 80px 5%;
+    background: white; /* Dark gray background for footer */
+    text-align: center;
+    min-height: 80vh; /* Increased minimum height for more vertical space */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    color: white; /* White font color for the entire section */
+}
+
+.contact-content {
+    max-width: 1200px; /* Increased max-width for better layout */
+    width: 100%;
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(30px); /* Start slightly below */
+    transition: opacity 1s ease-out, transform 1s ease-out; /* Animation transition */
+    display: flex; /* Use flexbox for left and right columns */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    justify-content: space-between; /* Space out columns */
+    align-items: flex-start; /* Align content to the top */
+    gap: 40px; /* Gap between columns */
+}
+
+/* Animation target state for contact content */
+.contact-content.animated-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.contact-left {
+    flex: 2; /* Take more space on the left */
+    min-width: 300px; /* Minimum width before wrapping */
+    text-align: left; /* Align text content to the left */
+    opacity: 0; /* Initial state for animation */
+    transform: translateX(-30px); /* Start from left */
+    transition: opacity 1.2s ease-out, transform 1.2s ease-out; /* Slightly longer animation */
+}
+
+.contact-left.animated-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.contact-right {
+    flex: 1; /* Take less space on the right */
+    min-width: 280px; /* Minimum width before wrapping */
+    margin-left: auto; /* Push to the right if space allows */
+    opacity: 0; /* Initial state for animation */
+    transform: translateX(30px); /* Start from right */
+    transition: opacity 1.2s ease-out, transform 1.2s ease-out; /* Slightly longer animation */
+}
+
+.contact-right.animated-in {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.contact-section h2 {
+    font-family: 'Cormorant Garamond', sans-serif;
+    font-size: 4em;
+    font-weight: 700;
+    margin-bottom: 20px; /* Reduced margin */
+    color: #1f1f1f; /* Set to white as per request */
+    line-height: 1.2;
+    text-align: left; /* Ensure it's left-aligned */
+}
+
+.contact-section p {
+    font-family: 'Raleway', sans-serif;
+    font-size: 1.5em;
+    line-height: 1.6;
+    color: #1f1f1f; /* Ensure paragraph text is white */
+    margin-bottom: 30px; /* Adjusted margin */
+}
+
+/* Social Links styles */
+.social-links-container {
+    margin-top: 40px;
+}
+
+.social-links-container h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2em;
+    font-weight: 500;
+    margin-bottom: 20px;
+    color: #1f1f1f; /* Ensure subheading is white */
+    text-align: left; /* Align subheading to left */
+}
+
+.social-icons {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start; /* Align social icons to the left */
+    flex-wrap: wrap;
+}
+
+.social-link {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 50px; /* Size of the icon container */
+    height: 50px;
+    border-radius: 50%; /* Circular shape */
+    background-color: #555; /* Slightly lighter gray for contrast */
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Enhanced transition */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-decoration: none; /* Remove underline from social links */
+    position: relative;
+    overflow: hidden;
+}
+
+.social-link::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(45deg, #FF3700, #FFA500);
+    transition: left 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    z-index: 0;
+}
+
+.social-link i { /* Target Font Awesome icons */
+    font-size: 24px; /* Adjust size as needed */
+    color: white; /* Ensure icons are white */
+    display: block; /* Ensures centering works well */
+    line-height: 1; /* Remove extra space */
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+}
+
+.social-link:hover {
+    transform: translateY(-5px) scale(1.1); /* Enhanced lift and scale */
+    box-shadow: 0 8px 20px rgba(255, 55, 0, 0.4); /* Orange glow shadow */
+}
+
+.social-link:hover::before {
+    left: 0; /* Slide gradient in */
+}
+
+.social-link:hover i {
+    transform: rotate(360deg); /* Icon rotation on hover */
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+.social-link:active {
+    transform: translateY(-2px) scale(1.05); /* Slightly less intense active state */
+    box-shadow: 0 4px 10px rgba(255, 55, 0, 0.3);
+}
+.social-link:active::before {
+    left: 0; /* Still slide gradient on active */
+}
+.social-link:active i {
+    transform: rotate(360deg); /* Still rotate icon on active */
+}
+
+/* Mail Form styles */
+.mail-form {
+    background-color: transparent; /* Slightly lighter dark gray for the form box */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%; /* Take full width of its column */
+    box-sizing: border-box;
+    text-align: left; /* Align form elements to the left */
+}
+
+.mail-form h3 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.8em;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #1f1f1f; /* Ensure subheading is white */
+    text-align: center; /* Center the form heading */
+}
+
+.form-input,
+.form-textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #666;
+    border-radius: 5px;
+    background-color: white; /* Darker input background */
+    color: black;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1em;
+    box-sizing: border-box; /* Include padding in width */
+    resize: vertical; /* Allow vertical resizing for textarea */
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+    color: gray;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    border-color: #FF3700; /* Orange focus border */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 55, 0, 0.3);
+}
+
+.send-button {
+    /* This button overrides .highlight-button for a "minimal classy" design */
+    margin-top: 10px;
+    width: auto;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+
+    /* Minimal Classy Design overrides */
+    background-color: transparent !important; /* Start transparent, override highlight-button */
+    border: 1px solid black; /* Subtle orange border */
+    color: black !important; /* Text color matches border, override highlight-button */
+    border-radius: 8px; /* Slightly less rounded than default highlight-button */
+    padding: 10px 25px; /* More generous padding for a classier feel */
+    font-size: 1.1em; /* Make text a bit larger */
+    font-family: 'Raleway', sans-serif; /* Consistent font */
+    font-weight: 700; /* Bold text */
+    text-decoration: none; /* Ensure no underline */
+    white-space: nowrap; /* Prevent text wrapping */
+
+    /* Reset specific transform/shadow from .highlight-button for a clean start */
+    transform: none; 
+    box-shadow: none;
+
+    /* Transitions for new properties and hover effects */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Remove the sliding pseudo-element for a cleaner design */
+.send-button::before {
+    content: none; /* Explicitly remove the pseudo-element */
+}
+
+.send-button:hover::before {
+    content: none; /* Ensure no hover effect for a non-existent pseudo-element */
+}
+
+.send-button:hover {
+    background-color: white !important; /* Fill with orange on hover, override highlight-button */
+    color: ff2400 !important; /* Text turns white on hover */
+    transform: translateY(-2px); /* Subtle lift */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Soft shadow */
+}
+
+/* Styles for the icon inside the button */
+.send-button .send-icon {
+    font-size: 1.2em; /* Slightly larger icon */
+    margin-left: 8px;
+    transition: transform 0.3s ease, color 0.3s ease; /* Icon transition */
+    color: inherit; /* Inherit color from the button (will change on hover) */
+}
+
+.send-button:hover .send-icon {
+    transform: translateX(5px); /* Subtle slide, no rotation for minimal look */
+}
+
+/* Handle the active (pressed) state for the button */
+.send-button:active {
+    background-color: #FF3700 !important;
+    color: white !important;
+    transform: translateY(-1px); /* Slightly less lift on press */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+}
+
+.send-button:active .send-icon {
+    transform: translateX(3px); /* Slightly less slide on press */
+}
+
+.form-message {
+    margin-top: 15px;
+    font-family: 'Raleway', sans-serif;
+    font-size: 1em;
+    font-weight: 600;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+
+/* Responsive adjustments for Contact Section */
+@media (max-width: 992px) {
+    .contact-section h2 {
+        font-size: 3em;
+    }
+    .contact-section p {
+        font-size: 1.4em;
+    }
+    .social-links-container h3 {
+        font-size: 1.8em;
+    }
+    .mail-form h3 {
+        font-size: 1.6em;
+    }
+}
+
+@media (max-width: 768px) {
+    .contact-content {
+        flex-direction: column; /* Stack columns on smaller screens */
+        align-items: center; /* Center stacked content */
+        gap: 30px;
+    }
+    .contact-left,
+    .contact-right {
+        min-width: unset; /* Remove min-width to allow full width */
+        width: 100%;
+        text-align: center; /* Center text for stacked layout */
+        margin-left: 0;
+    }
+    .contact-section h2 {
+        font-size: 2.5em;
+        text-align: center; /* Ensure heading is centered on mobile */
+    }
+    .contact-section p {
+        font-size: 1.2em;
+    }
+    .social-links-container h3 {
+        font-size: 1.6em;
+        text-align: center; /* Ensure social subheading is centered on mobile */
+    }
+    .social-icons {
+        justify-content: center; /* Center social icons on mobile */
+    }
+    .mail-form {
+        padding: 25px;
+    }
+    .mail-form h3 {
+        font-size: 1.4em;
+    }
+}
+
+@media (max-width: 576px) {
+    .contact-section h2 {
+        font-size: 2em;
+    }
+    .contact-section p {
+        font-size: 1em;
+    }
+    .social-link {
+        width: 45px;
+        height: 45px;
+    }
+    .social-links-container h3 {
+        font-size: 1.4em;
+    }
+    .mail-form h3 {
+        font-size: 1.2em;
+    }
+    .form-input,
+    .form-textarea {
+        font-size: 0.9em;
+        padding: 10px;
+    }
+    .send-button {
+        font-size: 1em;
+        padding: 10px 20px;
+    }
+}
+
+/* Footer */
+footer {
+    padding: 30px 5%;
+    background-color: #333; /* Dark gray background for footer */
+    text-align: center;
+    font-family: 'Raleway', sans-serif;
+    font-size: 0.9em;
+    color: white; /* White font color */
+    border-top: 1px solid #555; /* More visible separator */
+    opacity: 0; /* Initial state for animation */
+    transform: translateY(20px); /* Start slightly below */
+    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+
+footer.animated-in {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Animate footer text on hover */
+footer:hover {
+    background-color: #3a3a3a; /* Slightly lighter on hover */
+    transition: background-color 0.3s ease;
+}
+
+/* NEW: Apply hover effects to :active state for touch feedback */
+footer:active {
+    background-color: #3a3a3a; /* Same as hover for consistent feedback on touch */
+}
